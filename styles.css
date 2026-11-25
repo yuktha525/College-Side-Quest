@@ -131,22 +131,71 @@ html, body {
   gap: 10px;
 }
 
-.icon-btn {
-  width: 38px;
+.sfx-btn {
   height: 38px;
+  padding: 0 11px;
   border-radius: 11px;
   border: 1.5px solid var(--border);
   background: var(--bg-card);
-  color: var(--text);
-  font-size: 1rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   cursor: pointer;
   display: grid;
   place-items: center;
 }
 
-.icon-btn:hover {
+.sfx-btn:hover {
   background: var(--bg-elevated);
+  color: var(--text);
 }
+
+.hero-emblem {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #253352, #172035);
+  border: 1.5px solid rgba(251, 191, 36, 0.35);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.badge-crest {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(251, 191, 36, 0.14);
+  border: 1.5px solid rgba(251, 191, 36, 0.45);
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.empty-badge {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 999px;
+  padding: 5px 12px;
+  margin-bottom: 12px;
+}
+
+.rank-1 { color: var(--gold); }
+.rank-2 { color: #cbd5e1; }
+.rank-3 { color: #fb923c; }
 
 /* ---- Tactile RPG Buttons ---- */
 .btn {
@@ -1042,7 +1091,10 @@ html, body {
   border: 2px solid var(--gold);
   display: grid;
   place-items: center;
-  font-size: 2rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.05em;
 }
 
 .profile-hero h2 {

@@ -16,13 +16,6 @@ const state = {
   sfxEnabled: localStorage.getItem("csq_sfx") !== "off",
 };
 
-const CAT_ICONS = {
-  rescue: "⚡",
-  skill: "🧠",
-  errand: "🏃",
-  squad: "🎮",
-};
-
 const CATEGORIES_META = {
   rescue: { label: "Quick Rescue", default_xp: 75 },
   skill: { label: "Skill Swap", default_xp: 100 },
@@ -31,24 +24,37 @@ const CATEGORIES_META = {
 };
 
 const HERO_CLASSES_META = [
-  { avatar: "🧙", label: "Code Mage" },
-  { avatar: "⚡", label: "Tech Ranger" },
-  { avatar: "🎨", label: "Pixel Bard" },
-  { avatar: "🛡️", label: "Squad Tank" },
-  { avatar: "🦉", label: "Night Owl" },
-  { avatar: "🚀", label: "Lab Alchemist" },
+  { avatar: "CM", label: "Code Mage" },
+  { avatar: "TR", label: "Tech Ranger" },
+  { avatar: "PB", label: "Pixel Bard" },
+  { avatar: "ST", label: "Squad Tank" },
+  { avatar: "NO", label: "Night Owl" },
+  { avatar: "LA", label: "Lab Alchemist" },
 ];
 
 const BADGES_META = [
-  { id: "first_quest", name: "First Blood", icon: "🌟", description: "Completed your first campus quest" },
-  { id: "lifesaver", name: "Lifesaver", icon: "⚡", description: "Rescued a classmate on an urgent quest" },
-  { id: "debug_wizard", name: "Debug Wizard", icon: "🧠", description: "Completed 2+ Skill Swap quests" },
-  { id: "squad_mvp", name: "Clutch Player", icon: "🏆", description: "Completed 2+ Squad Up quests" },
-  { id: "trusted_five", name: "Campus Legend", icon: "👑", description: "Completed 5+ quests for fellow students" },
+  { id: "first_quest", name: "First Blood", icon: "I", description: "Completed your first campus quest" },
+  { id: "lifesaver", name: "Lifesaver", icon: "II", description: "Rescued a classmate on an urgent quest" },
+  { id: "debug_wizard", name: "Debug Wizard", icon: "III", description: "Completed 2+ Skill Swap quests" },
+  { id: "squad_mvp", name: "Clutch Player", icon: "IV", description: "Completed 2+ Squad Up quests" },
+  { id: "trusted_five", name: "Campus Legend", icon: "V", description: "Completed 5+ quests for fellow students" },
 ];
 
-const LOCAL_DB_KEY = "csq_static_db_v1";
+const LOCAL_DB_KEY = "csq_static_db_v2";
 const $ = (id) => document.getElementById(id);
+
+function formatEmblem(avatar, fallbackName = "Hero") {
+  const clean = String(avatar ?? "").replace(/[^\x20-\x7E]/g, "").trim();
+  if (clean) return clean.slice(0, 3).toUpperCase();
+  const parts = String(fallbackName || "H").trim().split(/\s+/);
+  return parts.map((p) => p[0] || "").join("").slice(0, 2).toUpperCase() || "HR";
+}
+
+function formatBadgeCode(icon, name = "B") {
+  const clean = String(icon ?? "").replace(/[^\x20-\x7E]/g, "").trim();
+  if (clean) return clean.slice(0, 3);
+  return String(name || "B").slice(0, 2).toUpperCase();
+}
 
 function escapeHtml(str) {
   return String(str ?? "")
@@ -82,10 +88,10 @@ function seedLocalDb() {
     nextQuestId: 5,
     nextMsgId: 1,
     users: [
-      { id: 1, name: "Maya Lin", email: "maya@campus.edu", password: "quest123", department: "CS", hostel: "North Hall", avatar: "🧙", hero_class: "Code Mage", xp: 340, reliability: 100, quests_completed: 4, badges: ["first_quest", "debug_wizard"] },
-      { id: 2, name: "Arjun Verma", email: "arjun@campus.edu", password: "quest123", department: "ECE", hostel: "Cedar Block", avatar: "⚡", hero_class: "Tech Ranger", xp: 210, reliability: 98, quests_completed: 3, badges: ["first_quest", "lifesaver"] },
-      { id: 3, name: "Zoya Khan", email: "zoya@campus.edu", password: "quest123", department: "Design", hostel: "Artisan Wing", avatar: "🎨", hero_class: "Pixel Bard", xp: 165, reliability: 100, quests_completed: 2, badges: ["first_quest"] },
-      { id: 4, name: "Kabir Rao", email: "kabir@campus.edu", password: "quest123", department: "Mech", hostel: "North Hall", avatar: "🛡️", hero_class: "Squad Tank", xp: 95, reliability: 95, quests_completed: 1, badges: [] },
+      { id: 1, name: "Maya Lin", email: "maya@campus.edu", password: "quest123", department: "CS", hostel: "North Hall", avatar: "CM", hero_class: "Code Mage", xp: 340, reliability: 100, quests_completed: 4, badges: ["first_quest", "debug_wizard"] },
+      { id: 2, name: "Arjun Verma", email: "arjun@campus.edu", password: "quest123", department: "ECE", hostel: "Cedar Block", avatar: "TR", hero_class: "Tech Ranger", xp: 210, reliability: 98, quests_completed: 3, badges: ["first_quest", "lifesaver"] },
+      { id: 3, name: "Zoya Khan", email: "zoya@campus.edu", password: "quest123", department: "Design", hostel: "Artisan Wing", avatar: "PB", hero_class: "Pixel Bard", xp: 165, reliability: 100, quests_completed: 2, badges: ["first_quest"] },
+      { id: 4, name: "Kabir Rao", email: "kabir@campus.edu", password: "quest123", department: "Mech", hostel: "North Hall", avatar: "ST", hero_class: "Squad Tank", xp: 95, reliability: 95, quests_completed: 1, badges: [] },
     ],
     quests: [
       { id: 1, creator_id: 2, claimer_id: null, title: "Need a USB-C Mac charger for 1 hour", description: "Battery is at 6% before my project presentation. Sitting near the window desks!", category: "rescue", location: "Central Library 2F", reward_text: "1 Iced Coffee", xp_value: 75, status: "open", completion_code: "4821", expires_at: iso(2 * 3600000), created_at: iso(-12 * 60000) },
@@ -237,7 +243,7 @@ function localApi(rawPath, options = {}) {
     if (password.length < 6) throw new Error("Password must be at least 6 characters");
     if (db.users.some((x) => x.email === email)) throw new Error("An account with this email already exists");
 
-    const avatar = String(body.avatar || "🧙");
+    const avatar = String(body.avatar || "CM");
     const cls = HERO_CLASSES_META.find((c) => c.avatar === avatar)?.label || "Code Mage";
     const newUser = {
       id: db.nextUserId++,
@@ -331,7 +337,7 @@ function localApi(rawPath, options = {}) {
         .filter((m) => m.quest_id === qid)
         .map((m) => {
           const sender = db.users.find((u) => u.id === m.sender_id);
-          return { ...m, sender_name: sender?.name || "Hero", sender_avatar: sender?.avatar || "🧙" };
+          return { ...m, sender_name: sender?.name || "Hero", sender_avatar: sender?.avatar || "CM" };
         });
       return { quest: serializeLocalQuest(db, q, viewerId), messages: msgs };
     }
@@ -595,12 +601,12 @@ function setSession(token, user) {
 }
 
 function renderHud() {
-  $("sfx-toggle").textContent = state.sfxEnabled ? "🔊" : "🔇";
+  $("sfx-toggle").textContent = state.sfxEnabled ? "SFX ON" : "SFX OFF";
 
   if (state.user) {
     $("hero-pill").classList.remove("hidden");
     $("signin-open-btn").classList.add("hidden");
-    $("hud-avatar").textContent = state.user.avatar;
+    $("hud-avatar").textContent = formatEmblem(state.user.avatar, state.user.name);
     $("hud-name").textContent = state.user.name.split(" ")[0];
     $("hud-level").textContent = `Lv.${state.user.level}`;
     const pct = Math.min(100, Math.round((state.user.xp_in_level / state.user.xp_next_level) * 100));
@@ -628,10 +634,9 @@ function switchView(viewName) {
 
 /* ---- Render Quest Cards ---- */
 function createQuestCardHtml(q) {
-  const icon = CAT_ICONS[q.category] || "⚔️";
   const statusTag =
     q.status === "open"
-      ? `<span class="card-timer">⏱ ${escapeHtml(formatTimeLeft(q.expires_at))}</span>`
+      ? `<span class="card-timer">${escapeHtml(formatTimeLeft(q.expires_at))}</span>`
       : `<span class="status-pill status-${escapeHtml(q.status)}">${escapeHtml(q.status)}</span>`;
 
   let ctaLabel = "Inspect";
@@ -642,14 +647,14 @@ function createQuestCardHtml(q) {
   return `
     <article class="quest-card" data-cat="${escapeHtml(q.category)}" data-quest-id="${q.id}">
       <div class="card-top">
-        <span class="cat-badge cat-${escapeHtml(q.category)}">${icon} ${escapeHtml(q.category_label)}</span>
+        <span class="cat-badge cat-${escapeHtml(q.category)}">${escapeHtml(q.category_label)}</span>
         ${statusTag}
       </div>
       <h3 class="card-title">${escapeHtml(q.title)}</h3>
-      <div class="card-location">📍 ${escapeHtml(q.location)} • ${escapeHtml(q.creator.avatar)} ${escapeHtml(q.creator.name)}</div>
+      <div class="card-location">${escapeHtml(q.location)} • ${escapeHtml(q.creator.name)}</div>
       <div class="card-bottom">
         <div class="card-rewards">
-          <span class="reward-pill">🎁 ${escapeHtml(q.reward_text)}</span>
+          <span class="reward-pill">Reward: ${escapeHtml(q.reward_text)}</span>
           <span class="xp-pill">+${q.xp_value} XP</span>
         </div>
         <button class="btn btn-secondary btn-card" type="button">${ctaLabel}</button>
@@ -726,10 +731,9 @@ async function openQuestDetail(questId) {
 }
 
 function renderQuestDetail(q, messages) {
-  const icon = CAT_ICONS[q.category] || "⚔️";
   const catEl = $("detail-category");
   catEl.className = `cat-badge cat-${q.category}`;
-  catEl.textContent = `${icon} ${q.category_label}`;
+  catEl.textContent = q.category_label;
 
   const statusEl = $("detail-status");
   statusEl.className = `status-pill status-${q.status}`;
@@ -744,14 +748,14 @@ function renderQuestDetail(q, messages) {
 
   const partyHtml = [
     `<div class="party-chip">
-      <span class="lb-avatar">${escapeHtml(q.creator.avatar)}</span>
+      <span class="hero-emblem">${escapeHtml(formatEmblem(q.creator.avatar, q.creator.name))}</span>
       <span><strong>Posted by ${escapeHtml(q.creator.name)}</strong><br/><small class="lb-sub">Lv.${q.creator.level} ${escapeHtml(q.creator.department)} • ${q.creator.reliability}% reliable</small></span>
     </div>`,
   ];
   if (q.claimer) {
     partyHtml.push(
       `<div class="party-chip">
-        <span class="lb-avatar">${escapeHtml(q.claimer.avatar)}</span>
+        <span class="hero-emblem">${escapeHtml(formatEmblem(q.claimer.avatar, q.claimer.name))}</span>
         <span><strong>Accepted by ${escapeHtml(q.claimer.name)}</strong><br/><small class="lb-sub">Lv.${q.claimer.level} ${escapeHtml(q.claimer.department)} • ${q.claimer.reliability}% reliable</small></span>
       </div>`
     );
@@ -771,13 +775,13 @@ function renderQuestDetail(q, messages) {
       openModal("auth-modal");
     };
   } else if (q.status === "completed") {
-    box.innerHTML = `<div class="action-row"><strong>🎉 Quest Completed!</strong><span>XP and badges have been awarded.</span></div>`;
+    box.innerHTML = `<div class="action-row"><strong>Quest Completed!</strong><span>XP and badges have been awarded.</span></div>`;
   } else if (q.status === "cancelled" || q.status === "expired") {
     box.innerHTML = `<div class="action-row"><span>This quest is ${escapeHtml(q.status)}.</span></div>`;
   } else if (q.is_creator) {
     box.innerHTML = `
       <div>
-        <strong>🔑 Handshake PIN (share in person when done):</strong>
+        <strong>Handshake PIN (share in person when done):</strong>
         <div class="pin-display">${escapeHtml(q.completion_code)}</div>
         <div class="action-row">
           <small class="muted-text">Your helper enters this 4-digit PIN to complete the quest.</small>
@@ -796,14 +800,14 @@ function renderQuestDetail(q, messages) {
     box.innerHTML = `
       <div class="action-row">
         <span>Ready to help? Accepting locks this quest for you.</span>
-        <button class="btn btn-emerald" id="detail-claim-btn" type="button">⚔️ Accept Quest (+${q.xp_value} XP)</button>
+        <button class="btn btn-emerald" id="detail-claim-btn" type="button">Accept Quest (+${q.xp_value} XP)</button>
       </div>
     `;
     $("detail-claim-btn").onclick = () => questAction(q.id, "claim", "Quest accepted! Head to the meetup spot.");
   } else if (q.status === "claimed" && q.is_claimer) {
     box.innerHTML = `
       <div>
-        <strong>🤝 Enter Poster's 4-Digit Handshake PIN to Claim +${q.xp_value} XP:</strong>
+        <strong>Enter Poster's 4-Digit Handshake PIN to Claim +${q.xp_value} XP:</strong>
         <form id="complete-pin-form" class="pin-form">
           <input id="pin-input" class="pin-input" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234" required />
           <button class="btn btn-emerald" type="submit">Complete Quest</button>
@@ -824,7 +828,7 @@ function renderQuestDetail(q, messages) {
         launchConfetti();
         const badgeText =
           res.new_badges && res.new_badges.length
-            ? ` Badge unlocked: ${res.new_badges.map((b) => `${b.icon} ${b.name}`).join(", ")}!`
+            ? ` Badge unlocked: ${res.new_badges.map((b) => b.name).join(", ")}!`
             : "";
         showToast(`+${res.xp_awarded} XP earned!${badgeText}`);
         await refreshAfterAction(q.id);
@@ -834,7 +838,7 @@ function renderQuestDetail(q, messages) {
     };
     $("detail-unclaim-btn").onclick = () => questAction(q.id, "unclaim", "Quest released back to the board");
   } else {
-    box.innerHTML = `<div class="action-row"><span>🔒 Another campus hero is currently completing this quest.</span></div>`;
+    box.innerHTML = `<div class="action-row"><span>Locked: another campus hero is currently completing this quest.</span></div>`;
   }
 
   const msgContainer = $("detail-messages");
@@ -846,7 +850,7 @@ function renderQuestDetail(q, messages) {
         (m) => `
       <div class="chat-msg">
         <div class="chat-msg-head">
-          <strong>${escapeHtml(m.sender_avatar)} ${escapeHtml(m.sender_name)}</strong>
+          <strong>[${escapeHtml(formatEmblem(m.sender_avatar, m.sender_name))}] ${escapeHtml(m.sender_name)}</strong>
           <span>${new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
         <div>${escapeHtml(m.body)}</div>
@@ -903,14 +907,13 @@ async function loadLeaderboard() {
 
 function renderLeaderboard() {
   if (!state.leaderboard) return;
-  const medals = ["🥇", "🥈", "🥉"];
   $("lb-heroes").innerHTML = state.leaderboard.heroes
     .map(
       (h, i) => `
     <div class="lb-row">
       <div class="lb-left">
-        <span class="lb-rank">${medals[i] || `#${i + 1}`}</span>
-        <span class="lb-avatar">${escapeHtml(h.avatar)}</span>
+        <span class="lb-rank rank-${i + 1}">#${i + 1}</span>
+        <span class="hero-emblem">${escapeHtml(formatEmblem(h.avatar, h.name))}</span>
         <div>
           <span class="lb-name">${escapeHtml(h.name)}</span>
           <span class="lb-sub">Lv.${h.level} ${escapeHtml(h.rank)} • ${escapeHtml(h.department)}</span>
@@ -946,7 +949,7 @@ function renderLeaderboard() {
 function openProfileModal() {
   if (!state.user) return;
   const u = state.user;
-  $("profile-avatar").textContent = u.avatar;
+  $("profile-avatar").textContent = formatEmblem(u.avatar, u.name);
   $("profile-name").textContent = u.name;
   $("profile-subtitle").textContent = `Lv.${u.level} ${u.rank} • ${u.hero_class} (${u.department})`;
   $("profile-xp-label").textContent = `${u.xp_in_level} / ${u.xp_next_level} XP (${u.xp} total)`;
@@ -959,7 +962,7 @@ function openProfileModal() {
     .map(
       (b) => `
     <div class="badge-tile ${earnedSet.has(b.id) ? "" : "locked"}">
-      <span style="font-size:1.3rem;">${escapeHtml(b.icon)}</span>
+      <span class="badge-crest">${escapeHtml(formatBadgeCode(b.icon, b.name))}</span>
       <span><strong>${escapeHtml(b.name)}</strong><small>${escapeHtml(b.description)}</small></span>
     </div>`
     )
@@ -1084,7 +1087,7 @@ function bindEvents() {
         setSession(res.token, res.user);
         closeModal("auth-modal");
         playSfx("chime");
-        showToast(`Welcome, ${res.user.avatar} ${res.user.name}!`);
+        showToast(`Welcome, ${res.user.name}!`);
         await refreshActiveView();
       } catch (err) {
         showToast(err.message, true);

@@ -55,7 +55,7 @@ def init_db(db_path: Path | None = None, seed: bool = True) -> Path:
                 password_hash TEXT NOT NULL,
                 department TEXT NOT NULL,
                 hostel TEXT NOT NULL,
-                avatar TEXT NOT NULL DEFAULT '🧙',
+                avatar TEXT NOT NULL DEFAULT 'CM',
                 hero_class TEXT NOT NULL DEFAULT 'Code Mage',
                 xp INTEGER NOT NULL DEFAULT 0,
                 reliability INTEGER NOT NULL DEFAULT 100,
@@ -130,10 +130,10 @@ def _seed_demo_data(conn: sqlite3.Connection) -> None:
     demo_pw = hash_password("quest123")
 
     users = [
-        ("Maya Lin", "maya@campus.edu", "CS", "North Hall", "🧙", "Code Mage", 340, 100, 4),
-        ("Arjun Verma", "arjun@campus.edu", "ECE", "Cedar Block", "⚡", "Tech Ranger", 210, 98, 3),
-        ("Zoya Khan", "zoya@campus.edu", "Design", "Artisan Wing", "🎨", "Pixel Bard", 165, 100, 2),
-        ("Kabir Rao", "kabir@campus.edu", "Mech", "North Hall", "🛡️", "Squad Tank", 95, 95, 1),
+        ("Maya Lin", "maya@campus.edu", "CS", "North Hall", "CM", "Code Mage", 340, 100, 4),
+        ("Arjun Verma", "arjun@campus.edu", "ECE", "Cedar Block", "TR", "Tech Ranger", 210, 98, 3),
+        ("Zoya Khan", "zoya@campus.edu", "Design", "Artisan Wing", "PB", "Pixel Bard", 165, 100, 2),
+        ("Kabir Rao", "kabir@campus.edu", "Mech", "North Hall", "ST", "Squad Tank", 95, 95, 1),
     ]
 
     user_ids: list[int] = []

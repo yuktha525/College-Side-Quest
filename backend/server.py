@@ -256,7 +256,7 @@ class SideQuestHandler(BaseHTTPRequestHandler):
         password = str(data.get("password", ""))
         department = str(data.get("department", "CS")).strip() or "CS"
         hostel = str(data.get("hostel", "Main Campus")).strip() or "Main Campus"
-        avatar = str(data.get("avatar", "🧙")).strip() or "🧙"
+        avatar = str(data.get("avatar", "CM")).strip() or "CM"
         hero_class = str(data.get("hero_class", "Code Mage")).strip() or "Code Mage"
 
         if len(name) < 2 or len(name) > 40:
@@ -282,7 +282,7 @@ class SideQuestHandler(BaseHTTPRequestHandler):
 
         valid_pairs = {a: l for a, l in HERO_CLASSES}
         if avatar not in valid_pairs:
-            avatar, hero_class = "🧙", "Code Mage"
+            avatar, hero_class = "CM", "Code Mage"
         else:
             hero_class = valid_pairs[avatar]
 

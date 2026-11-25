@@ -1,4 +1,4 @@
-# ⚔️ CampusSideQuest
+# CampusSideQuest
 
 A lightweight, RPG-themed campus micro-favors and skill-barter quest board built with **zero external dependencies** (Python 3 + SQLite + Vanilla JS/CSS).
 

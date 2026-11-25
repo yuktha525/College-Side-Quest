@@ -19,43 +19,43 @@ CATEGORIES = {
 }
 
 HERO_CLASSES = [
-    ("🧙", "Code Mage"),
-    ("⚡", "Tech Ranger"),
-    ("🎨", "Pixel Bard"),
-    ("🛡️", "Squad Tank"),
-    ("🦉", "Night Owl"),
-    ("🚀", "Lab Alchemist"),
+    ("CM", "Code Mage"),
+    ("TR", "Tech Ranger"),
+    ("PB", "Pixel Bard"),
+    ("ST", "Squad Tank"),
+    ("NO", "Night Owl"),
+    ("LA", "Lab Alchemist"),
 ]
 
 BADGES = {
     "first_quest": {
         "id": "first_quest",
         "name": "First Blood",
-        "icon": "🌟",
+        "icon": "I",
         "description": "Completed your first campus quest",
     },
     "lifesaver": {
         "id": "lifesaver",
         "name": "Lifesaver",
-        "icon": "⚡",
+        "icon": "II",
         "description": "Rescued a classmate on an urgent quest",
     },
     "debug_wizard": {
         "id": "debug_wizard",
         "name": "Debug Wizard",
-        "icon": "🧠",
+        "icon": "III",
         "description": "Completed 2+ Skill Swap quests",
     },
     "squad_mvp": {
         "id": "squad_mvp",
         "name": "Clutch Player",
-        "icon": "🏆",
+        "icon": "IV",
         "description": "Completed 2+ Squad Up quests",
     },
     "trusted_five": {
         "id": "trusted_five",
         "name": "Campus Legend",
-        "icon": "👑",
+        "icon": "V",
         "description": "Completed 5+ quests for fellow students",
     },
 }

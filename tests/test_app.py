@@ -68,7 +68,7 @@ class CampusSideQuestTestCase(unittest.TestCase):
                 "password": "password123",
                 "department": dept,
                 "hostel": hostel,
-                "avatar": "🧙",
+                "avatar": "CM",
             },
         )
         self.assertEqual(status, 201, body)
