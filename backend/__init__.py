@@ -1,0 +1,1 @@
+"""CampusSideQuest backend package."""
