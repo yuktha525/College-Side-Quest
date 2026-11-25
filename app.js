@@ -1031,7 +1031,7 @@ function openProfileModal() {
   const u = state.user;
   $("profile-avatar").innerHTML = `<span class="hero-avatar-box">${renderAvatarSvg(u.avatar, u.name)}</span>`;
   $("profile-name").textContent = u.name;
-  $("profile-subtitle").textContent = `Lv.${u.level} ${u.rank} • ${u.hero_class} (${u.department})`;
+  $("profile-subtitle").textContent = `Lv.${u.level} ${u.rank} • ${u.department} (${u.hostel})`;
   $("profile-xp-label").textContent = `${u.xp_in_level} / ${u.xp_next_level} XP (${u.xp} total)`;
   $("profile-reliability").textContent = `${u.reliability}% Reliable`;
   $("profile-xp-fill").style.width = `${Math.min(100, Math.round((u.xp_in_level / u.xp_next_level) * 100))}%`;
@@ -1159,6 +1159,13 @@ function bindEvents() {
     state.myFilter = btn.dataset.mineFilter;
     document.querySelectorAll("[data-mine-filter]").forEach((b) => b.classList.toggle("active", b === btn));
     renderMyQuests();
+  };
+
+  $("avatar-picker").onclick = (e) => {
+    const btn = e.target.closest("[data-pick-avatar]");
+    if (!btn) return;
+    $("register-avatar-input").value = btn.dataset.pickAvatar;
+    document.querySelectorAll("[data-pick-avatar]").forEach((b) => b.classList.toggle("active", b === btn));
   };
 
   document.querySelectorAll(".auth-tab").forEach((tab) => {

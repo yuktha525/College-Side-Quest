@@ -229,17 +229,30 @@
             <input name="hostel" type="text" required maxlength="30" placeholder="North Hall" value="North Hall" />
           </label>
         </div>
-        <label class="field">
-          <span>Hero Class</span>
-          <select name="avatar" id="hero-class-select">
-            <option value="CM">Code Mage (CM)</option>
-            <option value="TR">Tech Ranger (TR)</option>
-            <option value="PB">Pixel Bard (PB)</option>
-            <option value="ST">Squad Tank (ST)</option>
-            <option value="NO">Night Owl (NO)</option>
-            <option value="LA">Lab Alchemist (LA)</option>
-          </select>
-        </label>
+        <div class="field">
+          <span>Choose Avatar</span>
+          <input type="hidden" name="avatar" id="register-avatar-input" value="CM" />
+          <div class="avatar-picker" id="avatar-picker" role="radiogroup" aria-label="Choose Avatar">
+            <button class="avatar-choice active" type="button" data-pick-avatar="CM" aria-label="Avatar 1">
+              <span class="hero-avatar-box" data-avatar-key="CM"></span>
+            </button>
+            <button class="avatar-choice" type="button" data-pick-avatar="TR" aria-label="Avatar 2">
+              <span class="hero-avatar-box" data-avatar-key="TR"></span>
+            </button>
+            <button class="avatar-choice" type="button" data-pick-avatar="PB" aria-label="Avatar 3">
+              <span class="hero-avatar-box" data-avatar-key="PB"></span>
+            </button>
+            <button class="avatar-choice" type="button" data-pick-avatar="ST" aria-label="Avatar 4">
+              <span class="hero-avatar-box" data-avatar-key="ST"></span>
+            </button>
+            <button class="avatar-choice" type="button" data-pick-avatar="NO" aria-label="Avatar 5">
+              <span class="hero-avatar-box" data-avatar-key="NO"></span>
+            </button>
+            <button class="avatar-choice" type="button" data-pick-avatar="LA" aria-label="Avatar 6">
+              <span class="hero-avatar-box" data-avatar-key="LA"></span>
+            </button>
+          </div>
+        </div>
         <label class="field">
           <span>Password</span>
           <input name="password" type="password" required minlength="6" placeholder="At least 6 characters" />
