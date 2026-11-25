@@ -13,6 +13,7 @@ const state = {
   searchQuery: "",
   activeQuestId: null,
   staticMode: false,
+  theme: localStorage.getItem("csq_theme") === "light" ? "light" : "dark",
   sfxEnabled: localStorage.getItem("csq_sfx") !== "off",
 };
 
@@ -48,6 +49,52 @@ function formatEmblem(avatar, fallbackName = "Hero") {
   if (clean) return clean.slice(0, 3).toUpperCase();
   const parts = String(fallbackName || "H").trim().split(/\s+/);
   return parts.map((p) => p[0] || "").join("").slice(0, 2).toUpperCase() || "HR";
+}
+
+const AVATAR_STYLES = {
+  CM: {
+    bg: "#312e81",
+    accent: "#a78bfa",
+    face: "#fde68a",
+    inner: '<path d="M12 5 L28 5 L32 22 L8 22 Z" fill="#6d28d9"/><circle cx="20" cy="20" r="8" fill="#fde68a"/><circle cx="17" cy="19" r="1.4" fill="#1e1b4b"/><circle cx="23" cy="19" r="1.4" fill="#1e1b4b"/><path d="M10 38 C10 29 30 29 30 38" fill="#5b21b6"/><path d="M18 10 L22 10 L20 14 Z" fill="#fbbf24"/>',
+  },
+  TR: {
+    bg: "#0c4a6e",
+    accent: "#38bdf8",
+    face: "#fed7aa",
+    inner: '<circle cx="20" cy="18" r="8.5" fill="#fed7aa"/><path d="M11 16 C12 9 28 9 29 16 L28 19 L12 19 Z" fill="#0284c7"/><rect x="13.5" y="16" width="13" height="4" rx="2" fill="#e0f2fe"/><path d="M10 38 C10 29 30 29 30 38" fill="#0369a1"/>',
+  },
+  PB: {
+    bg: "#701a75",
+    accent: "#f472b6",
+    face: "#fde68a",
+    inner: '<circle cx="20" cy="19" r="8" fill="#fde68a"/><path d="M12 15 Q20 7 28 15 L29 18 L11 18 Z" fill="#db2777"/><circle cx="17" cy="20" r="1.3" fill="#1f2937"/><circle cx="23" cy="20" r="1.3" fill="#1f2937"/><path d="M10 38 C10 29 30 29 30 38" fill="#be185d"/><circle cx="29" cy="11" r="2.5" fill="#fbbf24"/>',
+  },
+  ST: {
+    bg: "#064e3b",
+    accent: "#34d399",
+    face: "#fed7aa",
+    inner: '<rect x="12" y="10" width="16" height="16" rx="6" fill="#059669"/><rect x="14.5" y="15.5" width="11" height="5" rx="2" fill="#d1fae5"/><rect x="18.5" y="10" width="3" height="6" fill="#fbbf24"/><path d="M9 38 C9 29 31 29 31 38" fill="#047857"/>',
+  },
+  NO: {
+    bg: "#1e293b",
+    accent: "#fbbf24",
+    face: "#fde68a",
+    inner: '<circle cx="20" cy="19" r="8.5" fill="#fde68a"/><path d="M11 17 Q20 11 29 17 L27 21 L13 21 Z" fill="#334155"/><circle cx="16.5" cy="18.5" r="2.2" fill="#fbbf24"/><circle cx="23.5" cy="18.5" r="2.2" fill="#fbbf24"/><path d="M10 38 C10 29 30 29 30 38" fill="#475569"/>',
+  },
+  LA: {
+    bg: "#7c2d12",
+    accent: "#fb923c",
+    face: "#fed7aa",
+    inner: '<circle cx="20" cy="19" r="8" fill="#fed7aa"/><path d="M11 15 Q20 8 29 15 Z" fill="#ea580c"/><circle cx="16.5" cy="18" r="2.8" fill="#fff" stroke="#1e293b" stroke-width="1.3"/><circle cx="23.5" cy="18" r="2.8" fill="#fff" stroke="#1e293b" stroke-width="1.3"/><circle cx="16.5" cy="18" r="1.1" fill="#0f172a"/><circle cx="23.5" cy="18" r="1.1" fill="#0f172a"/><path d="M10 38 C10 29 30 29 30 38" fill="#c2410c"/>',
+  },
+};
+
+function renderAvatarSvg(avatarKey, fallbackName = "Hero") {
+  const code = formatEmblem(avatarKey, fallbackName);
+  const keys = Object.keys(AVATAR_STYLES);
+  const picked = AVATAR_STYLES[code] || AVATAR_STYLES[keys[(code.charCodeAt(0) || 0) % keys.length]];
+  return `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="40" height="40" fill="${picked.bg}"/><circle cx="20" cy="20" r="18" fill="none" stroke="${picked.accent}" stroke-opacity="0.35" stroke-width="1.5"/>${picked.inner}</svg>`;
 }
 
 function formatBadgeCode(icon, name = "B") {
@@ -600,13 +647,21 @@ function setSession(token, user) {
   renderHud();
 }
 
+function applyTheme() {
+  document.documentElement.setAttribute("data-theme", state.theme);
+  const isLight = state.theme === "light";
+  $("theme-icon-sun").classList.toggle("hidden", isLight);
+  $("theme-icon-moon").classList.toggle("hidden", !isLight);
+}
+
 function renderHud() {
-  $("sfx-toggle").textContent = state.sfxEnabled ? "SFX ON" : "SFX OFF";
+  applyTheme();
+  $("sfx-toggle").textContent = state.sfxEnabled ? "🔊" : "🔇";
 
   if (state.user) {
     $("hero-pill").classList.remove("hidden");
     $("signin-open-btn").classList.add("hidden");
-    $("hud-avatar").textContent = formatEmblem(state.user.avatar, state.user.name);
+    $("hud-avatar").innerHTML = renderAvatarSvg(state.user.avatar, state.user.name);
     $("hud-name").textContent = state.user.name.split(" ")[0];
     $("hud-level").textContent = `Lv.${state.user.level}`;
     const pct = Math.min(100, Math.round((state.user.xp_in_level / state.user.xp_next_level) * 100));
@@ -651,7 +706,10 @@ function createQuestCardHtml(q) {
         ${statusTag}
       </div>
       <h3 class="card-title">${escapeHtml(q.title)}</h3>
-      <div class="card-location">${escapeHtml(q.location)} • ${escapeHtml(q.creator.name)}</div>
+      <div class="card-location">
+        <span class="hero-avatar-box hero-avatar-sm">${renderAvatarSvg(q.creator.avatar, q.creator.name)}</span>
+        <span>${escapeHtml(q.location)} • ${escapeHtml(q.creator.name)}</span>
+      </div>
       <div class="card-bottom">
         <div class="card-rewards">
           <span class="reward-pill">Reward: ${escapeHtml(q.reward_text)}</span>
@@ -748,14 +806,14 @@ function renderQuestDetail(q, messages) {
 
   const partyHtml = [
     `<div class="party-chip">
-      <span class="hero-emblem">${escapeHtml(formatEmblem(q.creator.avatar, q.creator.name))}</span>
+      <span class="hero-avatar-box">${renderAvatarSvg(q.creator.avatar, q.creator.name)}</span>
       <span><strong>Posted by ${escapeHtml(q.creator.name)}</strong><br/><small class="lb-sub">Lv.${q.creator.level} ${escapeHtml(q.creator.department)} • ${q.creator.reliability}% reliable</small></span>
     </div>`,
   ];
   if (q.claimer) {
     partyHtml.push(
       `<div class="party-chip">
-        <span class="hero-emblem">${escapeHtml(formatEmblem(q.claimer.avatar, q.claimer.name))}</span>
+        <span class="hero-avatar-box">${renderAvatarSvg(q.claimer.avatar, q.claimer.name)}</span>
         <span><strong>Accepted by ${escapeHtml(q.claimer.name)}</strong><br/><small class="lb-sub">Lv.${q.claimer.level} ${escapeHtml(q.claimer.department)} • ${q.claimer.reliability}% reliable</small></span>
       </div>`
     );
@@ -850,7 +908,7 @@ function renderQuestDetail(q, messages) {
         (m) => `
       <div class="chat-msg">
         <div class="chat-msg-head">
-          <strong>[${escapeHtml(formatEmblem(m.sender_avatar, m.sender_name))}] ${escapeHtml(m.sender_name)}</strong>
+          <strong style="display:inline-flex;align-items:center;gap:6px;"><span class="hero-avatar-box hero-avatar-sm">${renderAvatarSvg(m.sender_avatar, m.sender_name)}</span> ${escapeHtml(m.sender_name)}</strong>
           <span>${new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
         <div>${escapeHtml(m.body)}</div>
@@ -913,7 +971,7 @@ function renderLeaderboard() {
     <div class="lb-row">
       <div class="lb-left">
         <span class="lb-rank rank-${i + 1}">#${i + 1}</span>
-        <span class="hero-emblem">${escapeHtml(formatEmblem(h.avatar, h.name))}</span>
+        <span class="hero-avatar-box">${renderAvatarSvg(h.avatar, h.name)}</span>
         <div>
           <span class="lb-name">${escapeHtml(h.name)}</span>
           <span class="lb-sub">Lv.${h.level} ${escapeHtml(h.rank)} • ${escapeHtml(h.department)}</span>
@@ -949,7 +1007,7 @@ function renderLeaderboard() {
 function openProfileModal() {
   if (!state.user) return;
   const u = state.user;
-  $("profile-avatar").textContent = formatEmblem(u.avatar, u.name);
+  $("profile-avatar").innerHTML = `<span class="hero-avatar-box">${renderAvatarSvg(u.avatar, u.name)}</span>`;
   $("profile-name").textContent = u.name;
   $("profile-subtitle").textContent = `Lv.${u.level} ${u.rank} • ${u.hero_class} (${u.department})`;
   $("profile-xp-label").textContent = `${u.xp_in_level} / ${u.xp_next_level} XP (${u.xp} total)`;
@@ -1002,6 +1060,12 @@ function bindEvents() {
   document.querySelectorAll(".nav-tab").forEach((btn) => {
     btn.onclick = () => switchView(btn.dataset.view);
   });
+
+  $("theme-toggle").onclick = () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("csq_theme", state.theme);
+    renderHud();
+  };
 
   $("sfx-toggle").onclick = () => {
     state.sfxEnabled = !state.sfxEnabled;
@@ -1197,6 +1261,9 @@ async function detectBackend() {
 
 /* ---- Bootstrap ---- */
 async function init() {
+  document.querySelectorAll("[data-avatar-key]").forEach((el) => {
+    el.innerHTML = renderAvatarSvg(el.dataset.avatarKey, el.dataset.avatarKey);
+  });
   bindEvents();
   renderHud();
 

@@ -3,10 +3,16 @@
   --bg-card: #151d2f;
   --bg-card-hover: #1b253c;
   --bg-elevated: #1e2942;
+  --hud-bg: rgba(12, 17, 29, 0.88);
+  --banner-bg: linear-gradient(135deg, rgba(30, 41, 66, 0.9), rgba(21, 29, 47, 0.95));
+  --surface-subtle: rgba(12, 17, 29, 0.55);
+  --surface-soft: rgba(255, 255, 255, 0.06);
   --border: #2a3756;
+  --dot-color: rgba(148, 163, 184, 0.09);
   --text: #f1f5f9;
   --text-muted: #94a3b8;
   --gold: #fbbf24;
+  --gold-text: #fbbf24;
   --gold-dark: #b45309;
   --primary: #38bdf8;
   --primary-dark: #0284c7;
@@ -16,7 +22,35 @@
   --coral: #fb7185;
   --danger: #f43f5e;
   --danger-dark: #be123c;
+  --btn-secondary-shadow: #090d16;
   --radius: 16px;
+}
+
+html[data-theme="light"] {
+  --bg: #f3f5fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8faff;
+  --bg-elevated: #e8eef8;
+  --hud-bg: rgba(255, 255, 255, 0.9);
+  --banner-bg: linear-gradient(135deg, #ffffff, #e9effb);
+  --surface-subtle: #f1f5fc;
+  --surface-soft: #eef2fa;
+  --border: #cfd9ec;
+  --dot-color: rgba(71, 85, 105, 0.12);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --gold: #f59e0b;
+  --gold-text: #b45309;
+  --gold-dark: #b45309;
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --emerald: #10b981;
+  --emerald-dark: #047857;
+  --violet: #7c3aed;
+  --coral: #e11d48;
+  --danger: #e11d48;
+  --danger-dark: #9f1239;
+  --btn-secondary-shadow: #cbd5e1;
 }
 
 * {
@@ -29,10 +63,11 @@ html, body {
   min-height: 100%;
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
-  background-image: radial-gradient(rgba(148, 163, 184, 0.09) 1px, transparent 1px);
+  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
   background-size: 24px 24px;
   color: var(--text);
   line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .hidden {
@@ -53,7 +88,7 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(12, 17, 29, 0.88);
+  background: var(--hud-bg);
   backdrop-filter: blur(12px);
   border-bottom: 2px solid var(--border);
 }
@@ -131,24 +166,52 @@ html, body {
   gap: 10px;
 }
 
-.sfx-btn {
+.icon-btn {
+  width: 38px;
   height: 38px;
-  padding: 0 11px;
   border-radius: 11px;
   border: 1.5px solid var(--border);
   background: var(--bg-card);
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  color: var(--text);
+  font-size: 1rem;
   cursor: pointer;
   display: grid;
   place-items: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.sfx-btn:hover {
+.icon-btn:hover {
   background: var(--bg-elevated);
-  color: var(--text);
+}
+
+.hero-avatar-box {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+}
+
+.hero-avatar-box svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero-avatar-sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.profile-avatar .hero-avatar-box {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 14px;
 }
 
 .hero-emblem {
@@ -244,11 +307,11 @@ html, body {
   background: var(--bg-elevated);
   color: var(--text);
   border: 1.5px solid var(--border);
-  box-shadow: 0 3px 0 #090d16;
+  box-shadow: 0 3px 0 var(--btn-secondary-shadow);
 }
 
 .btn-secondary:hover {
-  background: #253352;
+  filter: brightness(1.06);
 }
 
 .btn-danger {
@@ -299,14 +362,14 @@ html, body {
 }
 
 .lvl-tag {
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 800;
 }
 
 .xp-track {
   width: 100%;
   height: 6px;
-  background: #0a0e18;
+  background: var(--surface-subtle);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -348,7 +411,7 @@ html, body {
 
 /* ---- Hero Banner ---- */
 .hero-banner {
-  background: linear-gradient(135deg, rgba(30, 41, 66, 0.9), rgba(21, 29, 47, 0.95));
+  background: var(--banner-bg);
   border: 2px solid var(--border);
   border-radius: 20px;
   padding: 24px 28px;
@@ -407,7 +470,7 @@ html, body {
 }
 
 .stat-chip {
-  background: rgba(12, 17, 29, 0.65);
+  background: var(--surface-subtle);
   border: 1.5px solid var(--border);
   border-radius: 14px;
   padding: 12px 18px;
@@ -419,7 +482,7 @@ html, body {
   display: block;
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--gold-text);
   line-height: 1.1;
 }
 
@@ -549,12 +612,15 @@ html, body {
 .card-location {
   font-size: 0.88rem;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .card-bottom {
   margin-top: auto;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -571,7 +637,7 @@ html, body {
 .reward-pill {
   font-size: 0.82rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-soft);
   padding: 4px 10px;
   border-radius: 8px;
 }
@@ -579,9 +645,9 @@ html, body {
 .xp-pill {
   font-size: 0.82rem;
   font-weight: 800;
-  color: var(--gold);
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: var(--gold-text);
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.32);
   padding: 4px 9px;
   border-radius: 8px;
 }
@@ -675,7 +741,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: rgba(12, 17, 29, 0.55);
+  background: var(--surface-subtle);
   border: 1.5px solid var(--border);
   border-radius: 12px;
   padding: 12px 14px;
@@ -690,7 +756,7 @@ html, body {
 .lb-rank {
   font-weight: 800;
   width: 24px;
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .lb-avatar {
@@ -709,7 +775,7 @@ html, body {
 
 .lb-xp {
   font-weight: 800;
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .guild-row {
@@ -950,7 +1016,7 @@ html, body {
 }
 
 .xp-gold {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .party-row {
@@ -984,7 +1050,7 @@ html, body {
   font-size: 2rem;
   font-weight: 900;
   letter-spacing: 0.32em;
-  color: var(--gold);
+  color: var(--gold-text);
   background: var(--bg);
   border: 2px dashed rgba(251, 191, 36, 0.45);
   border-radius: 12px;

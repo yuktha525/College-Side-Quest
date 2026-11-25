@@ -28,12 +28,22 @@
       </nav>
 
       <div class="hud-actions">
-        <button class="sfx-btn" id="sfx-toggle" type="button" title="Toggle game sound effects" aria-label="Toggle sound">
-          SFX ON
+        <button class="icon-btn" id="theme-toggle" type="button" title="Toggle dark / light mode" aria-label="Toggle theme">
+          <svg id="theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+          <svg id="theme-icon-moon" class="hidden" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <button class="icon-btn" id="sfx-toggle" type="button" title="Toggle game sound effects" aria-label="Toggle sound">
+          🔊
         </button>
 
         <button class="hero-pill hidden" id="hero-pill" type="button" title="View Hero Profile & Badges">
-          <span class="hero-emblem" id="hud-avatar">CM</span>
+          <span class="hero-avatar-box" id="hud-avatar"></span>
           <span class="hero-pill-meta">
             <span class="hero-pill-top">
               <strong id="hud-name">Hero</strong>
@@ -168,19 +178,19 @@
         <p class="muted-text">Jump in with 1 click to test the full quest flow &amp; live handshake:</p>
         <div class="demo-grid">
           <button class="demo-card" data-demo-email="maya@campus.edu" type="button">
-            <span class="hero-emblem">CM</span>
+            <span class="hero-avatar-box" data-avatar-key="CM"></span>
             <span><strong>Maya Lin</strong><small>CS • North Hall</small></span>
           </button>
           <button class="demo-card" data-demo-email="arjun@campus.edu" type="button">
-            <span class="hero-emblem">TR</span>
+            <span class="hero-avatar-box" data-avatar-key="TR"></span>
             <span><strong>Arjun Verma</strong><small>ECE • Cedar Block</small></span>
           </button>
           <button class="demo-card" data-demo-email="zoya@campus.edu" type="button">
-            <span class="hero-emblem">PB</span>
+            <span class="hero-avatar-box" data-avatar-key="PB"></span>
             <span><strong>Zoya Khan</strong><small>Design • Artisan Wing</small></span>
           </button>
           <button class="demo-card" data-demo-email="kabir@campus.edu" type="button">
-            <span class="hero-emblem">ST</span>
+            <span class="hero-avatar-box" data-avatar-key="ST"></span>
             <span><strong>Kabir Rao</strong><small>Mech • North Hall</small></span>
           </button>
         </div>
