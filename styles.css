@@ -1292,6 +1292,40 @@ html[data-theme="light"] .brand-wordmark {
   margin-bottom: 8px;
 }
 
+.xp-guide {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.xp-guide-title {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  color: var(--twitch-soft);
+  margin-bottom: 2px;
+}
+
+.xp-guide-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.xp-guide-row strong {
+  font-family: var(--font-pixel);
+  font-size: 0.68rem;
+  color: var(--gold-text);
+  white-space: nowrap;
+}
+
 .badges-section h4 {
   margin: 0 0 10px;
 }
