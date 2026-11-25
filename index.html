@@ -109,10 +109,14 @@
 
     <!-- VIEW 2: MY QUESTS -->
     <section id="view-mine" class="view">
-      <div class="section-head">
+      <div class="section-head section-head-row">
         <div>
           <h2>My Quest Log</h2>
           <p class="subtitle">Quests you accepted or posted, with live chat and 4-digit handshake PINs.</p>
+        </div>
+        <div class="segmented hidden" id="mine-filter">
+          <button class="seg-btn active" data-mine-filter="active" type="button">Active (0)</button>
+          <button class="seg-btn" data-mine-filter="completed" type="button">Completed (0)</button>
         </div>
       </div>
       <div id="mine-guest" class="empty-state hidden">
@@ -124,8 +128,8 @@
       <div id="mine-grid" class="quest-grid"></div>
       <div id="mine-empty" class="empty-state hidden">
         <div class="empty-badge">EMPTY LOG</div>
-        <h3>Your Quest Log is empty</h3>
-        <p>Accept an open quest from the board or post one of your own!</p>
+        <h3 id="mine-empty-title">Your Quest Log is empty</h3>
+        <p id="mine-empty-desc">Accept an open quest from the board or post one of your own!</p>
       </div>
     </section>
 

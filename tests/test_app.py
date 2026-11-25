@@ -183,6 +183,11 @@ class CampusSideQuestTestCase(unittest.TestCase):
         _, poster_after = self.request("GET", "/api/me", token=poster_tok)
         self.assertEqual(poster_after["user"]["xp"], poster["xp"] + 15)
 
+        # My Quests scope returns the completed quest for both poster and helper
+        status, helper_mine = self.request("GET", "/api/quests?scope=mine", token=helper_tok)
+        self.assertEqual(status, 200)
+        self.assertTrue(any(q["id"] == qid and q["status"] == "completed" for q in helper_mine["quests"]))
+
     def test_unclaim_cancel_and_auto_expiry(self) -> None:
         poster_tok, _ = self.register_user("Neha", "neha@campus.edu")
         helper_tok, _ = self.register_user("Dev", "dev@campus.edu")

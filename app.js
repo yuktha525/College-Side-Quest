@@ -8,6 +8,7 @@ const state = {
   myQuests: [],
   leaderboard: null,
   guildMode: "departments",
+  myFilter: "active",
   activeView: "board",
   activeCategory: "all",
   searchQuery: "",
@@ -755,25 +756,46 @@ function renderBoard() {
 
 async function loadMyQuests() {
   if (!state.user) {
+    $("mine-filter").classList.add("hidden");
     $("mine-guest").classList.remove("hidden");
     $("mine-grid").innerHTML = "";
     $("mine-empty").classList.add("hidden");
     return;
   }
   $("mine-guest").classList.add("hidden");
+  $("mine-filter").classList.remove("hidden");
   try {
     const data = await api("/api/quests?scope=mine");
     state.myQuests = data.quests || [];
-    if (!state.myQuests.length) {
-      $("mine-grid").innerHTML = "";
-      $("mine-empty").classList.remove("hidden");
-      return;
-    }
-    $("mine-empty").classList.add("hidden");
-    $("mine-grid").innerHTML = state.myQuests.map(createQuestCardHtml).join("");
+    renderMyQuests();
   } catch (err) {
     showToast(err.message, true);
   }
+}
+
+function renderMyQuests() {
+  const activeList = state.myQuests.filter((q) => q.status === "open" || q.status === "claimed");
+  const completedList = state.myQuests.filter((q) => q.status === "completed");
+
+  const activeBtn = document.querySelector('[data-mine-filter="active"]');
+  const completedBtn = document.querySelector('[data-mine-filter="completed"]');
+  if (activeBtn) activeBtn.textContent = `Active (${activeList.length})`;
+  if (completedBtn) completedBtn.textContent = `Completed (${completedList.length})`;
+
+  const visible = state.myFilter === "completed" ? completedList : activeList;
+  if (!visible.length) {
+    $("mine-grid").innerHTML = "";
+    $("mine-empty-title").textContent =
+      state.myFilter === "completed" ? "No completed quests yet" : "No active quests right now";
+    $("mine-empty-desc").textContent =
+      state.myFilter === "completed"
+        ? "Finish a quest with a 4-digit handshake PIN to see it in your trophy history."
+        : "Accept an open quest from the board or post one of your own!";
+    $("mine-empty").classList.remove("hidden");
+    return;
+  }
+  $("mine-empty").classList.add("hidden");
+  $("mine-grid").innerHTML = visible.map(createQuestCardHtml).join("");
 }
 
 /* ---- Quest Detail & Handshake ---- */
@@ -1129,6 +1151,14 @@ function bindEvents() {
     state.guildMode = btn.dataset.guild;
     document.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("active", b === btn));
     renderLeaderboard();
+  };
+
+  $("mine-filter").onclick = (e) => {
+    const btn = e.target.closest("[data-mine-filter]");
+    if (!btn) return;
+    state.myFilter = btn.dataset.mineFilter;
+    document.querySelectorAll("[data-mine-filter]").forEach((b) => b.classList.toggle("active", b === btn));
+    renderMyQuests();
   };
 
   document.querySelectorAll(".auth-tab").forEach((tab) => {
