@@ -505,6 +505,23 @@ html[data-theme="light"] .brand-wordmark {
   font-size: 1rem;
 }
 
+.quick-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.step-pill {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-soft);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+
 .banner-stats {
   display: flex;
   gap: 12px;

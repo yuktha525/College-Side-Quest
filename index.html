@@ -66,8 +66,13 @@
       <div class="hero-banner">
         <div>
           <span class="live-dot-pill" id="mode-pill"><span class="pulse-dot"></span> Live Campus Board</span>
-          <h1>Pick a side quest. Help a classmate. Level up.</h1>
-          <p class="subtitle">Trade quick favors, tech help, and campus runs for treats, skill swaps, and XP.</p>
+          <h1>Need help on campus? Post a quest. Earn XP.</h1>
+          <p class="subtitle">Ask classmates for quick favors, study help, or teammates—and trade snacks, skills, or XP.</p>
+          <div class="quick-steps">
+            <span class="step-pill">1. Pick or post a request</span>
+            <span class="step-pill">2. Chat &amp; meet on campus</span>
+            <span class="step-pill">3. Enter 4-digit code for XP</span>
+          </div>
         </div>
         <div class="banner-stats">
           <div class="stat-chip">
@@ -120,10 +125,10 @@
         </div>
       </div>
       <div id="mine-guest" class="empty-state hidden">
-        <div class="empty-badge">GUILD ACCESS</div>
-        <h3>Sign in to view your Quest Log</h3>
-        <p>Track quests you've posted or accepted and earn campus XP.</p>
-        <button class="btn btn-primary" id="mine-signin-btn" type="button">Choose Your Hero</button>
+        <div class="empty-badge">SIGN IN REQUIRED</div>
+        <h3>Sign in to view your quests</h3>
+        <p>Track requests you posted or accepted and see your earned XP.</p>
+        <button class="btn btn-primary" id="mine-signin-btn" type="button">Sign In</button>
       </div>
       <div id="mine-grid" class="quest-grid"></div>
       <div id="mine-empty" class="empty-state hidden">
@@ -144,13 +149,13 @@
 
       <div class="leaderboard-layout">
         <div class="panel">
-          <h3 class="panel-title">Top Heroes</h3>
+          <h3 class="panel-title">Top Helpers</h3>
           <div id="lb-heroes" class="lb-list"></div>
         </div>
 
         <div class="panel">
           <div class="panel-header-row">
-            <h3 class="panel-title">Guild Standings</h3>
+            <h3 class="panel-title">Dept &amp; Hostel Cup</h3>
             <div class="segmented" id="guild-toggle">
               <button class="seg-btn active" data-guild="departments" type="button">Departments</button>
               <button class="seg-btn" data-guild="hostels" type="button">Hostels</button>
@@ -166,18 +171,18 @@
   <div id="auth-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
     <div class="modal modal-sm">
       <div class="modal-header">
-        <h3 id="auth-modal-title">Enter the Guild</h3>
+        <h3 id="auth-modal-title">Sign In or Join</h3>
         <button class="close-btn" data-close="auth-modal" type="button" aria-label="Close">&times;</button>
       </div>
 
       <div class="auth-tabs">
         <button class="auth-tab active" data-auth-tab="demo" type="button">Quick Demo</button>
         <button class="auth-tab" data-auth-tab="login" type="button">Sign In</button>
-        <button class="auth-tab" data-auth-tab="register" type="button">New Hero</button>
+        <button class="auth-tab" data-auth-tab="register" type="button">Sign Up</button>
       </div>
 
       <div id="auth-pane-demo" class="auth-pane active">
-        <p class="muted-text">Jump in with 1 click to test the full quest flow &amp; live handshake:</p>
+        <p class="muted-text">Pick any sample student account to try the site right away:</p>
         <div class="demo-grid">
           <button class="demo-card" data-demo-email="maya@campus.edu" type="button">
             <span class="hero-avatar-box" data-avatar-key="CM"></span>
@@ -257,7 +262,7 @@
           <span>Password</span>
           <input name="password" type="password" required minlength="6" placeholder="At least 6 characters" />
         </label>
-        <button class="btn btn-primary btn-full" type="submit">Create Hero &amp; Join</button>
+        <button class="btn btn-primary btn-full" type="submit">Create Account</button>
       </form>
     </div>
   </div>
@@ -271,26 +276,26 @@
       </div>
       <form id="create-quest-form" class="stack-form">
         <label class="field">
-          <span>Category</span>
+          <span>Type of Help</span>
           <select name="category" id="quest-category-input">
-            <option value="rescue">Quick Rescue (+75 XP)</option>
-            <option value="skill">Skill Swap (+100 XP)</option>
-            <option value="errand">Campus Errand (+60 XP)</option>
-            <option value="squad">Squad Up (+80 XP)</option>
+            <option value="rescue">Quick Rescue — urgent borrow (+75 XP)</option>
+            <option value="skill">Skill Swap — study / tech help (+100 XP)</option>
+            <option value="errand">Campus Errand — pickup / print (+60 XP)</option>
+            <option value="squad">Squad Up — sports / group (+80 XP)</option>
           </select>
         </label>
         <label class="field">
-          <span>Quest Title</span>
+          <span>What do you need?</span>
           <input name="title" type="text" required minlength="4" maxlength="100" placeholder="e.g. Need a scientific calculator for 2 PM exam" />
         </label>
         <label class="field">
-          <span>Campus Location</span>
+          <span>Where on campus?</span>
           <input name="location" type="text" required minlength="2" maxlength="60" placeholder="e.g. Library 2F / Block B" />
         </label>
         <div class="field-row">
           <label class="field">
-            <span>Reward / Barter</span>
-            <input name="reward_text" type="text" maxlength="50" placeholder="e.g. 1 Cold Coffee" />
+            <span>Thank-You Reward</span>
+            <input name="reward_text" type="text" maxlength="50" placeholder="e.g. Coffee, snacks, or help back" />
           </label>
           <label class="field">
             <span>Expires In</span>
@@ -335,7 +340,7 @@
           <strong id="detail-reward">—</strong>
         </div>
         <div class="meta-box">
-          <span class="meta-label">XP Bounty</span>
+          <span class="meta-label">XP Reward</span>
           <strong id="detail-xp" class="xp-gold">+75 XP</strong>
         </div>
         <div class="meta-box">
@@ -365,7 +370,7 @@
   <div id="profile-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="profile-name">
     <div class="modal modal-sm">
       <div class="modal-header">
-        <h3>Hero Card</h3>
+        <h3>My Profile &amp; XP</h3>
         <button class="close-btn" data-close="profile-modal" type="button" aria-label="Close">&times;</button>
       </div>
       <div class="profile-hero">
@@ -404,7 +409,7 @@
         <div id="profile-badges" class="badge-grid"></div>
       </div>
       <div class="profile-footer">
-        <button class="btn btn-secondary" id="switch-hero-btn" type="button">Switch Hero</button>
+        <button class="btn btn-secondary" id="switch-hero-btn" type="button">Switch Account</button>
         <button class="btn btn-danger" id="logout-btn" type="button">Sign Out</button>
       </div>
     </div>

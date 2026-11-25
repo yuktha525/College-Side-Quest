@@ -695,9 +695,9 @@ function createQuestCardHtml(q) {
       ? `<span class="card-timer">${escapeHtml(formatTimeLeft(q.expires_at))}</span>`
       : `<span class="status-pill status-${escapeHtml(q.status)}">${escapeHtml(q.status)}</span>`;
 
-  let ctaLabel = "Inspect";
-  if (q.status === "open" && !q.is_creator) ctaLabel = "Accept Quest";
-  if (q.status === "claimed" && q.is_claimer) ctaLabel = "Enter PIN";
+  let ctaLabel = "View Details";
+  if (q.status === "open" && !q.is_creator) ctaLabel = "Accept";
+  if (q.status === "claimed" && q.is_claimer) ctaLabel = "Enter Code";
   if (q.is_creator && q.status !== "completed") ctaLabel = "Manage";
 
   return `
@@ -846,7 +846,7 @@ function renderQuestDetail(q, messages) {
   if (!state.user) {
     box.innerHTML = `
       <div class="action-row">
-        <span>Sign in as a campus hero to accept this quest and earn <strong>+${q.xp_value} XP</strong>.</span>
+        <span>Sign in to accept this request and earn <strong>+${q.xp_value} XP</strong>.</span>
         <button class="btn btn-primary" id="detail-login-btn" type="button">Sign In to Accept</button>
       </div>
     `;
@@ -861,10 +861,10 @@ function renderQuestDetail(q, messages) {
   } else if (q.is_creator) {
     box.innerHTML = `
       <div>
-        <strong>Handshake PIN (share in person when done):</strong>
+        <strong>4-Digit Completion Code (give this to your helper once done):</strong>
         <div class="pin-display">${escapeHtml(q.completion_code)}</div>
         <div class="action-row">
-          <small class="muted-text">Your helper enters this 4-digit PIN to complete the quest.</small>
+          <small class="muted-text">Your helper enters this 4-digit code to mark the quest done.</small>
           <div style="display:flex; gap:8px;">
             ${q.status === "claimed" ? `<button class="btn btn-secondary" id="detail-reopen-btn" type="button">Reopen</button>` : ""}
             <button class="btn btn-danger" id="detail-cancel-btn" type="button">Cancel Quest</button>
@@ -879,7 +879,7 @@ function renderQuestDetail(q, messages) {
   } else if (q.status === "open") {
     box.innerHTML = `
       <div class="action-row">
-        <span>Ready to help? Accepting locks this quest for you.</span>
+        <span>Can you help out? Accepting reserves this quest for you.</span>
         <button class="btn btn-emerald" id="detail-claim-btn" type="button">Accept Quest (+${q.xp_value} XP)</button>
       </div>
     `;
@@ -887,11 +887,11 @@ function renderQuestDetail(q, messages) {
   } else if (q.status === "claimed" && q.is_claimer) {
     box.innerHTML = `
       <div>
-        <strong>Enter Poster's 4-Digit Handshake PIN to Claim +${q.xp_value} XP:</strong>
+        <strong>Ask the poster for their 4-Digit Code to finish &amp; get +${q.xp_value} XP:</strong>
         <form id="complete-pin-form" class="pin-form">
           <input id="pin-input" class="pin-input" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234" required />
-          <button class="btn btn-emerald" type="submit">Complete Quest</button>
-          <button class="btn btn-secondary" id="detail-unclaim-btn" type="button">Release</button>
+          <button class="btn btn-emerald" type="submit">Finish &amp; Claim XP</button>
+          <button class="btn btn-secondary" id="detail-unclaim-btn" type="button">Back Out</button>
         </form>
       </div>
     `;
