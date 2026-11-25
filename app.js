@@ -1,4 +1,4 @@
-/* CampusSideQuest — Lightweight RPG Quest Board Client */
+/* CampusSideQuest — RPG Quest Board Client (Live Backend + Static GitHub Pages Fallback) */
 
 const state = {
   token: localStorage.getItem("csq_token") || "",
@@ -12,6 +12,7 @@ const state = {
   activeCategory: "all",
   searchQuery: "",
   activeQuestId: null,
+  staticMode: false,
   sfxEnabled: localStorage.getItem("csq_sfx") !== "off",
 };
 
@@ -22,6 +23,31 @@ const CAT_ICONS = {
   squad: "🎮",
 };
 
+const CATEGORIES_META = {
+  rescue: { label: "Quick Rescue", default_xp: 75 },
+  skill: { label: "Skill Swap", default_xp: 100 },
+  errand: { label: "Campus Errand", default_xp: 60 },
+  squad: { label: "Squad Up", default_xp: 80 },
+};
+
+const HERO_CLASSES_META = [
+  { avatar: "🧙", label: "Code Mage" },
+  { avatar: "⚡", label: "Tech Ranger" },
+  { avatar: "🎨", label: "Pixel Bard" },
+  { avatar: "🛡️", label: "Squad Tank" },
+  { avatar: "🦉", label: "Night Owl" },
+  { avatar: "🚀", label: "Lab Alchemist" },
+];
+
+const BADGES_META = [
+  { id: "first_quest", name: "First Blood", icon: "🌟", description: "Completed your first campus quest" },
+  { id: "lifesaver", name: "Lifesaver", icon: "⚡", description: "Rescued a classmate on an urgent quest" },
+  { id: "debug_wizard", name: "Debug Wizard", icon: "🧠", description: "Completed 2+ Skill Swap quests" },
+  { id: "squad_mvp", name: "Clutch Player", icon: "🏆", description: "Completed 2+ Squad Up quests" },
+  { id: "trusted_five", name: "Campus Legend", icon: "👑", description: "Completed 5+ quests for fellow students" },
+];
+
+const LOCAL_DB_KEY = "csq_static_db_v1";
 const $ = (id) => document.getElementById(id);
 
 function escapeHtml(str) {
@@ -31,6 +57,397 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/* ---- LocalStorage Static Engine (runs automatically on GitHub Pages) ---- */
+function computeLevelLocal(xp) {
+  const safeXp = Math.max(0, Number(xp) || 0);
+  const level = 1 + Math.floor(safeXp / 150);
+  const rank =
+    level >= 5 ? "Campus Legend" : level === 4 ? "Guild Hero" : level === 3 ? "Sidekick" : level === 2 ? "Quad Runner" : "Campus Rookie";
+  return {
+    level,
+    rank,
+    xp: safeXp,
+    xp_in_level: safeXp % 150,
+    xp_next_level: 150,
+  };
+}
+
+function seedLocalDb() {
+  const now = Date.now();
+  const iso = (offsetMs) => new Date(now + offsetMs).toISOString();
+  return {
+    nextUserId: 5,
+    nextQuestId: 5,
+    nextMsgId: 1,
+    users: [
+      { id: 1, name: "Maya Lin", email: "maya@campus.edu", password: "quest123", department: "CS", hostel: "North Hall", avatar: "🧙", hero_class: "Code Mage", xp: 340, reliability: 100, quests_completed: 4, badges: ["first_quest", "debug_wizard"] },
+      { id: 2, name: "Arjun Verma", email: "arjun@campus.edu", password: "quest123", department: "ECE", hostel: "Cedar Block", avatar: "⚡", hero_class: "Tech Ranger", xp: 210, reliability: 98, quests_completed: 3, badges: ["first_quest", "lifesaver"] },
+      { id: 3, name: "Zoya Khan", email: "zoya@campus.edu", password: "quest123", department: "Design", hostel: "Artisan Wing", avatar: "🎨", hero_class: "Pixel Bard", xp: 165, reliability: 100, quests_completed: 2, badges: ["first_quest"] },
+      { id: 4, name: "Kabir Rao", email: "kabir@campus.edu", password: "quest123", department: "Mech", hostel: "North Hall", avatar: "🛡️", hero_class: "Squad Tank", xp: 95, reliability: 95, quests_completed: 1, badges: [] },
+    ],
+    quests: [
+      { id: 1, creator_id: 2, claimer_id: null, title: "Need a USB-C Mac charger for 1 hour", description: "Battery is at 6% before my project presentation. Sitting near the window desks!", category: "rescue", location: "Central Library 2F", reward_text: "1 Iced Coffee", xp_value: 75, status: "open", completion_code: "4821", expires_at: iso(2 * 3600000), created_at: iso(-12 * 60000) },
+      { id: 2, creator_id: 3, claimer_id: null, title: "Help fix a Python Flask CORS bug (20 mins)", description: "My frontend can't hit my local API route. Will trade a Figma crash-course or canteen chai!", category: "skill", location: "CS Innovation Lab", reward_text: "Figma tips + Chai", xp_value: 100, status: "open", completion_code: "7390", expires_at: iso(5 * 3600000), created_at: iso(-25 * 60000) },
+      { id: 3, creator_id: 4, claimer_id: null, title: "Need 1 goalkeeper for 5v5 football at 5:30 PM", description: "Friendly hostel match, gloves provided. Just show up and have fun!", category: "squad", location: "Main Turf Ground", reward_text: "Post-match Gatorade", xp_value: 80, status: "open", completion_code: "1549", expires_at: iso(4 * 3600000), created_at: iso(-40 * 60000) },
+      { id: 4, creator_id: 1, claimer_id: null, title: "Grab 20-page spiral print from Main Gate shop", description: "Stuck in studio review. Will pay exact print bill + extra samosa for the trouble.", category: "errand", location: "Design Block Atrium", reward_text: "Samosa + Print cost", xp_value: 60, status: "open", completion_code: "6024", expires_at: iso(3 * 3600000), created_at: iso(-5 * 60000) },
+    ],
+    messages: [],
+  };
+}
+
+function getLocalDb() {
+  try {
+    const raw = localStorage.getItem(LOCAL_DB_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.users) && Array.isArray(parsed.quests)) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Re-seed if corrupted
+  }
+  const seeded = seedLocalDb();
+  localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(seeded));
+  return seeded;
+}
+
+function saveLocalDb(db) {
+  localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
+}
+
+function serializeLocalUser(u, includeEmail = false) {
+  const badgeMap = Object.fromEntries(BADGES_META.map((b) => [b.id, b]));
+  const lvl = computeLevelLocal(u.xp);
+  const out = {
+    id: u.id,
+    name: u.name,
+    department: u.department,
+    hostel: u.hostel,
+    avatar: u.avatar,
+    hero_class: u.hero_class,
+    reliability: u.reliability,
+    quests_completed: u.quests_completed,
+    badges: (u.badges || []).map((bid) => badgeMap[bid]).filter(Boolean),
+    ...lvl,
+  };
+  if (includeEmail) out.email = u.email;
+  return out;
+}
+
+function serializeLocalQuest(db, q, viewerId) {
+  const creator = db.users.find((u) => u.id === q.creator_id);
+  const claimer = q.claimer_id ? db.users.find((u) => u.id === q.claimer_id) : null;
+  const isCreator = viewerId !== null && q.creator_id === viewerId;
+  const isClaimer = viewerId !== null && q.claimer_id === viewerId;
+  const out = {
+    id: q.id,
+    title: q.title,
+    description: q.description,
+    category: q.category,
+    category_label: CATEGORIES_META[q.category]?.label || q.category,
+    location: q.location,
+    reward_text: q.reward_text,
+    xp_value: q.xp_value,
+    status: q.status,
+    expires_at: q.expires_at,
+    created_at: q.created_at,
+    is_creator: isCreator,
+    is_claimer: isClaimer,
+    creator: {
+      id: creator.id,
+      name: creator.name,
+      avatar: creator.avatar,
+      department: creator.department,
+      level: computeLevelLocal(creator.xp).level,
+      reliability: creator.reliability,
+    },
+    claimer: claimer
+      ? {
+          id: claimer.id,
+          name: claimer.name,
+          avatar: claimer.avatar,
+          department: claimer.department,
+          level: computeLevelLocal(claimer.xp).level,
+          reliability: claimer.reliability,
+        }
+      : null,
+  };
+  if (isCreator) out.completion_code = q.completion_code;
+  return out;
+}
+
+function getLocalViewer(db) {
+  if (!state.token.startsWith("local:")) return null;
+  const uid = Number(state.token.slice(6));
+  return db.users.find((u) => u.id === uid) || null;
+}
+
+function expireLocalQuests(db) {
+  const now = Date.now();
+  let changed = false;
+  db.quests.forEach((q) => {
+    if (q.status === "open" && new Date(q.expires_at).getTime() <= now) {
+      q.status = "expired";
+      changed = true;
+    }
+  });
+  if (changed) saveLocalDb(db);
+}
+
+function localApi(rawPath, options = {}) {
+  const db = getLocalDb();
+  expireLocalQuests(db);
+
+  const [pathOnly, queryStr] = rawPath.split("?");
+  const path = pathOnly.replace(/^\./, "");
+  const params = new URLSearchParams(queryStr || "");
+  const method = (options.method || "GET").toUpperCase();
+  const body = options.body ? JSON.parse(options.body) : {};
+  const viewer = getLocalViewer(db);
+  const viewerId = viewer ? viewer.id : null;
+
+  if (path === "/api/meta") {
+    return { categories: CATEGORIES_META, hero_classes: HERO_CLASSES_META, badges: BADGES_META };
+  }
+
+  if (path === "/api/auth/demo" && method === "POST") {
+    const email = String(body.email || "maya@campus.edu").toLowerCase();
+    const u = db.users.find((x) => x.email === email);
+    if (!u) throw new Error("Demo hero not found");
+    return { token: `local:${u.id}`, user: serializeLocalUser(u, true) };
+  }
+
+  if (path === "/api/auth/login" && method === "POST") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    const u = db.users.find((x) => x.email === email && x.password === password);
+    if (!u) throw new Error("Invalid email or password");
+    return { token: `local:${u.id}`, user: serializeLocalUser(u, true) };
+  }
+
+  if (path === "/api/auth/register" && method === "POST") {
+    const name = String(body.name || "").trim();
+    const email = String(body.email || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    if (name.length < 2) throw new Error("Name must be at least 2 characters");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Enter a valid college email address");
+    if (password.length < 6) throw new Error("Password must be at least 6 characters");
+    if (db.users.some((x) => x.email === email)) throw new Error("An account with this email already exists");
+
+    const avatar = String(body.avatar || "🧙");
+    const cls = HERO_CLASSES_META.find((c) => c.avatar === avatar)?.label || "Code Mage";
+    const newUser = {
+      id: db.nextUserId++,
+      name,
+      email,
+      password,
+      department: String(body.department || "CS").trim() || "CS",
+      hostel: String(body.hostel || "North Hall").trim() || "North Hall",
+      avatar,
+      hero_class: cls,
+      xp: 0,
+      reliability: 100,
+      quests_completed: 0,
+      badges: [],
+    };
+    db.users.push(newUser);
+    saveLocalDb(db);
+    return { token: `local:${newUser.id}`, user: serializeLocalUser(newUser, true) };
+  }
+
+  if (path === "/api/me") {
+    if (!viewer) throw new Error("Please sign in first");
+    return { user: serializeLocalUser(viewer, true) };
+  }
+
+  if (path === "/api/quests" && method === "GET") {
+    const scope = params.get("scope") || "board";
+    const category = params.get("category") || "all";
+    const qStr = (params.get("q") || "").trim().toLowerCase();
+
+    let rows = db.quests.slice();
+    if (scope === "mine") {
+      if (!viewer) throw new Error("Sign in to view your quests");
+      rows = rows.filter((q) => q.creator_id === viewerId || q.claimer_id === viewerId);
+    } else {
+      rows = rows.filter((q) => q.status === "open" || q.status === "claimed");
+    }
+    if (CATEGORIES_META[category]) {
+      rows = rows.filter((q) => q.category === category);
+    }
+    if (qStr) {
+      rows = rows.filter(
+        (q) =>
+          q.title.toLowerCase().includes(qStr) ||
+          q.location.toLowerCase().includes(qStr) ||
+          q.reward_text.toLowerCase().includes(qStr)
+      );
+    }
+    rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return { quests: rows.map((q) => serializeLocalQuest(db, q, viewerId)) };
+  }
+
+  if (path === "/api/quests" && method === "POST") {
+    if (!viewer) throw new Error("Please sign in first");
+    const title = String(body.title || "").trim();
+    const location = String(body.location || "").trim();
+    const category = String(body.category || "rescue");
+    if (title.length < 4) throw new Error("Title must be at least 4 characters");
+    if (location.length < 2) throw new Error("Location must be at least 2 characters");
+    if (!CATEGORIES_META[category]) throw new Error("Invalid quest category");
+    const mins = Math.max(15, Math.min(1440, Number(body.duration_minutes) || 120));
+    const q = {
+      id: db.nextQuestId++,
+      creator_id: viewerId,
+      claimer_id: null,
+      title,
+      description: String(body.description || "").trim() || "Meet at the campus spot to complete this quest!",
+      category,
+      location,
+      reward_text: String(body.reward_text || "").trim() || "Campus Karma",
+      xp_value: CATEGORIES_META[category].default_xp,
+      status: "open",
+      completion_code: String(Math.floor(1000 + Math.random() * 9000)),
+      expires_at: new Date(Date.now() + mins * 60000).toISOString(),
+      created_at: new Date().toISOString(),
+    };
+    db.quests.push(q);
+    saveLocalDb(db);
+    return { quest: serializeLocalQuest(db, q, viewerId) };
+  }
+
+  const questMatch = path.match(/^\/api\/quests\/(\d+)(?:\/(claim|unclaim|complete|cancel|messages))?$/);
+  if (questMatch) {
+    const qid = Number(questMatch[1]);
+    const action = questMatch[2] || "";
+    const q = db.quests.find((item) => item.id === qid);
+    if (!q) throw new Error("Quest not found");
+
+    if (!action && method === "GET") {
+      const msgs = db.messages
+        .filter((m) => m.quest_id === qid)
+        .map((m) => {
+          const sender = db.users.find((u) => u.id === m.sender_id);
+          return { ...m, sender_name: sender?.name || "Hero", sender_avatar: sender?.avatar || "🧙" };
+        });
+      return { quest: serializeLocalQuest(db, q, viewerId), messages: msgs };
+    }
+
+    if (!viewer) throw new Error("Please sign in first");
+
+    if (action === "claim") {
+      if (q.creator_id === viewerId) throw new Error("You cannot accept your own quest");
+      if (q.status !== "open") throw new Error(`Quest is already ${q.status}`);
+      q.status = "claimed";
+      q.claimer_id = viewerId;
+      saveLocalDb(db);
+      return { quest: serializeLocalQuest(db, q, viewerId) };
+    }
+
+    if (action === "unclaim") {
+      if (q.status !== "claimed") throw new Error("Only claimed quests can be released");
+      if (viewerId !== q.claimer_id && viewerId !== q.creator_id) throw new Error("Not allowed to release this quest");
+      if (viewerId === q.claimer_id) viewer.reliability = Math.max(50, viewer.reliability - 2);
+      q.status = "open";
+      q.claimer_id = null;
+      saveLocalDb(db);
+      return { quest: serializeLocalQuest(db, q, viewerId) };
+    }
+
+    if (action === "cancel") {
+      if (q.creator_id !== viewerId) throw new Error("Only the quest poster can cancel it");
+      if (q.status === "completed") throw new Error("Completed quests cannot be cancelled");
+      q.status = "cancelled";
+      saveLocalDb(db);
+      return { status: "cancelled" };
+    }
+
+    if (action === "complete") {
+      if (q.status !== "claimed") throw new Error("Quest must be claimed before completion");
+      if (q.claimer_id !== viewerId) throw new Error("Only the assigned hero can enter the completion PIN");
+      if (String(body.pin || "").trim() !== q.completion_code) throw new Error("Incorrect 4-digit handshake PIN");
+
+      q.status = "completed";
+      viewer.xp += q.xp_value;
+      viewer.quests_completed += 1;
+      viewer.reliability = Math.min(100, viewer.reliability + 1);
+      const poster = db.users.find((u) => u.id === q.creator_id);
+      if (poster) poster.xp += 15;
+
+      const doneQuests = db.quests.filter((item) => item.claimer_id === viewerId && item.status === "completed");
+      const newBadges = [];
+      const award = (bid) => {
+        if (!viewer.badges.includes(bid)) {
+          viewer.badges.push(bid);
+          const meta = BADGES_META.find((b) => b.id === bid);
+          if (meta) newBadges.push(meta);
+        }
+      };
+      if (doneQuests.length >= 1) award("first_quest");
+      if (doneQuests.some((item) => item.category === "rescue")) award("lifesaver");
+      if (doneQuests.filter((item) => item.category === "skill").length >= 2) award("debug_wizard");
+      if (doneQuests.filter((item) => item.category === "squad").length >= 2) award("squad_mvp");
+      if (doneQuests.length >= 5) award("trusted_five");
+
+      saveLocalDb(db);
+      return {
+        quest: serializeLocalQuest(db, q, viewerId),
+        user: serializeLocalUser(viewer, true),
+        xp_awarded: q.xp_value,
+        new_badges: newBadges,
+      };
+    }
+
+    if (action === "messages") {
+      const text = String(body.body || "").trim();
+      if (!text) throw new Error("Message cannot be empty");
+      if (q.status === "claimed" && viewerId !== q.creator_id && viewerId !== q.claimer_id) {
+        throw new Error("Chat is private between poster and helper");
+      }
+      const msg = {
+        id: db.nextMsgId++,
+        quest_id: qid,
+        sender_id: viewerId,
+        body: text,
+        created_at: new Date().toISOString(),
+      };
+      db.messages.push(msg);
+      saveLocalDb(db);
+      return { message: { ...msg, sender_name: viewer.name, sender_avatar: viewer.avatar } };
+    }
+  }
+
+  if (path === "/api/leaderboard") {
+    const heroes = db.users
+      .slice()
+      .sort((a, b) => b.xp - a.xp || b.quests_completed - a.quests_completed)
+      .slice(0, 12)
+      .map((u) => serializeLocalUser(u));
+
+    const groupBy = (key) => {
+      const map = new Map();
+      db.users.forEach((u) => {
+        const k = u[key];
+        const entry = map.get(k) || { [key]: k, total_xp: 0, total_done: 0, members: 0 };
+        entry.total_xp += u.xp;
+        entry.total_done += u.quests_completed;
+        entry.members += 1;
+        map.set(k, entry);
+      });
+      return Array.from(map.values()).sort((a, b) => b.total_xp - a.total_xp);
+    };
+
+    return {
+      heroes,
+      departments: groupBy("department"),
+      hostels: groupBy("hostel"),
+    };
+  }
+
+  throw new Error("Unsupported action");
 }
 
 /* ---- Subtle Web Audio Game Chimes ---- */
@@ -133,8 +550,12 @@ function closeModal(id) {
   }
 }
 
-/* ---- API Helper ---- */
+/* ---- Unified API Helper ---- */
 async function api(path, options = {}) {
+  if (state.staticMode) {
+    return localApi(path, options);
+  }
+  const relPath = path.startsWith("/") ? `.${path}` : path;
   const headers = { ...(options.headers || {}) };
   if (options.body && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
@@ -142,7 +563,7 @@ async function api(path, options = {}) {
   if (state.token) {
     headers["Authorization"] = `Bearer ${state.token}`;
   }
-  const res = await fetch(path, { ...options, headers });
+  const res = await fetch(relPath, { ...options, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(data.error || `Request failed (${res.status})`);
@@ -337,7 +758,6 @@ function renderQuestDetail(q, messages) {
   }
   $("detail-party").innerHTML = partyHtml.join("");
 
-  // Handshake / Action Box
   const box = $("detail-action-box");
   if (!state.user) {
     box.innerHTML = `
@@ -417,7 +837,6 @@ function renderQuestDetail(q, messages) {
     box.innerHTML = `<div class="action-row"><span>🔒 Another campus hero is currently completing this quest.</span></div>`;
   }
 
-  // Messages
   const msgContainer = $("detail-messages");
   if (!messages.length) {
     msgContainer.innerHTML = `<div class="muted-text" style="font-size:0.84rem;">No messages yet. Say hello to coordinate!</div>`;
@@ -535,7 +954,7 @@ function openProfileModal() {
   $("profile-xp-fill").style.width = `${Math.min(100, Math.round((u.xp_in_level / u.xp_next_level) * 100))}%`;
 
   const earnedSet = new Set((u.badges || []).map((b) => b.id));
-  const catalog = state.meta?.badges || [];
+  const catalog = state.meta?.badges || BADGES_META;
   $("profile-badges").innerHTML = catalog
     .map(
       (b) => `
@@ -549,10 +968,10 @@ function openProfileModal() {
   openModal("profile-modal");
 }
 
-/* ---- Live SSE Updates ---- */
+/* ---- Live SSE Updates (Backend mode only) ---- */
 function connectEvents() {
-  if (!window.EventSource) return;
-  const es = new EventSource("/api/events");
+  if (state.staticMode || !window.EventSource) return;
+  const es = new EventSource("./api/events");
   es.addEventListener("board_update", async () => {
     await refreshActiveView();
     if (state.activeQuestId) {
@@ -613,7 +1032,6 @@ function bindEvents() {
     };
   });
 
-  // Category filters
   $("category-filters").onclick = (e) => {
     const pill = e.target.closest(".filter-pill");
     if (!pill) return;
@@ -631,7 +1049,6 @@ function bindEvents() {
     }, 180);
   };
 
-  // Click card to open detail
   const handleGridClick = (e) => {
     const card = e.target.closest(".quest-card");
     if (card) openQuestDetail(Number(card.dataset.questId));
@@ -639,7 +1056,6 @@ function bindEvents() {
   $("board-grid").onclick = handleGridClick;
   $("mine-grid").onclick = handleGridClick;
 
-  // Guild toggle
   $("guild-toggle").onclick = (e) => {
     const btn = e.target.closest(".seg-btn");
     if (!btn) return;
@@ -648,7 +1064,6 @@ function bindEvents() {
     renderLeaderboard();
   };
 
-  // Auth tabs
   document.querySelectorAll(".auth-tab").forEach((tab) => {
     tab.onclick = () => {
       const target = tab.dataset.authTab;
@@ -659,7 +1074,6 @@ function bindEvents() {
     };
   });
 
-  // Demo quick login
   document.querySelectorAll(".demo-card").forEach((btn) => {
     btn.onclick = async () => {
       try {
@@ -678,7 +1092,6 @@ function bindEvents() {
     };
   });
 
-  // Email login
   $("login-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -697,7 +1110,6 @@ function bindEvents() {
     }
   };
 
-  // Register
   $("register-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -716,7 +1128,6 @@ function bindEvents() {
     }
   };
 
-  // Create quest
   $("create-quest-form").onsubmit = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -736,7 +1147,6 @@ function bindEvents() {
     }
   };
 
-  // Chat message
   $("chat-form").onsubmit = async (e) => {
     e.preventDefault();
     if (!state.activeQuestId) return;
@@ -755,7 +1165,6 @@ function bindEvents() {
     }
   };
 
-  // Profile actions
   $("switch-hero-btn").onclick = () => {
     closeModal("profile-modal");
     openModal("auth-modal");
@@ -768,15 +1177,36 @@ function bindEvents() {
   };
 }
 
+/* ---- Detect Backend vs Static Hosting ---- */
+async function detectBackend() {
+  if (location.hostname.endsWith("github.io")) {
+    return false;
+  }
+  try {
+    const res = await fetch("./api/health", { cache: "no-store" });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data && data.status === "ok";
+  } catch {
+    return false;
+  }
+}
+
 /* ---- Bootstrap ---- */
 async function init() {
   bindEvents();
   renderHud();
 
+  const hasBackend = await detectBackend();
+  state.staticMode = !hasBackend;
+  if (state.staticMode) {
+    $("mode-pill").innerHTML = '<span class="pulse-dot"></span> Interactive Demo Mode (Browser Storage)';
+  }
+
   try {
     state.meta = await api("/api/meta");
   } catch {
-    state.meta = { badges: [] };
+    state.meta = { badges: BADGES_META };
   }
 
   if (state.token) {

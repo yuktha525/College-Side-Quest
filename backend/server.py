@@ -37,7 +37,8 @@ from backend.logic import (
     serialize_user,
 )
 
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+STATIC_DIR = Path(__file__).resolve().parent.parent
+PUBLIC_STATIC_FILES = {"index.html", "styles.css", "app.js"}
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 QUEST_SELECT_SQL = """
@@ -803,9 +804,12 @@ class SideQuestHandler(BaseHTTPRequestHandler):
 
     def _serve_static(self, raw_path: str) -> None:
         rel = "index.html" if raw_path in ("", "/") else raw_path.lstrip("/")
+        if rel not in PUBLIC_STATIC_FILES:
+            rel = "index.html"
         target = (STATIC_DIR / rel).resolve()
-        if not target.is_relative_to(STATIC_DIR.resolve()) or not target.is_file():
-            target = (STATIC_DIR / "index.html").resolve()
+        if not target.is_file():
+            self.send_error(HTTPStatus.NOT_FOUND, "Static file not found")
+            return
 
         content_type, _ = mimetypes.guess_type(str(target))
         data = target.read_bytes()

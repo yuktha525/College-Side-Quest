@@ -9,6 +9,10 @@ A lightweight, RPG-themed campus micro-favors and skill-barter quest board built
 - **Real-Time Live Feed & Party Chat:** Instant updates across tabs/devices via Server-Sent Events (SSE).
 - **1-Click Demo Heroes + Custom Sign Up:** Pre-seeded demo accounts for effortless presentations, plus full registration/login.
 
+## Modes
+1. **GitHub Pages / Static Mode:** Works out of the box from the repository root (`index.html`, `styles.css`, `app.js`) using browser `localStorage` for demo heroes, quest posting, 4-digit PIN handshakes, XP/badges, and leaderboards.
+2. **Full-Stack Server Mode (`python3 app.py`):** Uses the built-in Python 3 + SQLite backend with real-time Server-Sent Events (`/api/events`) across devices.
+
 ## Run Locally
 
 ```bash

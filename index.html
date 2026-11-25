@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CampusSideQuest — Campus RPG Quest Board</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <canvas id="confetti-canvas" aria-hidden="true"></canvas>
@@ -53,7 +53,7 @@
     <section id="view-board" class="view active">
       <div class="hero-banner">
         <div>
-          <span class="live-dot-pill"><span class="pulse-dot"></span> Live Campus Board</span>
+          <span class="live-dot-pill" id="mode-pill"><span class="pulse-dot"></span> Live Campus Board</span>
           <h1>Pick a side quest. Help a classmate. Level up.</h1>
           <p class="subtitle">Trade quick favors, tech help, and campus runs for treats, skill swaps, and XP.</p>
         </div>
@@ -369,6 +369,6 @@
   <!-- Toast Stack -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-  <script src="/app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
